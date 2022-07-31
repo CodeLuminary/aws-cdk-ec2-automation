@@ -6,7 +6,7 @@ This project is about automating AWS Elastic compute cloud (EC2) instances by st
 ## Technology Stack & Tools
 
 - [Amazon Web Service(AWS)](https://aws.amazon.com/) (Cloud Provider)
-- [AWS CLI] (https://aws.amazon.com/cli/)
+- [AWS CLI](https://aws.amazon.com/cli/) 
 - Cloud Development Kit (CDK) - For infrastructure provisioning.
 - Typescript - Language for infrastructure provisioning. Python, C#, Java can also be use.
 - Python  - For writing lambda functions for automation. Javascript, C#, Java, Go and Ruby can also be use.
