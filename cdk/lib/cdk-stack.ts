@@ -41,18 +41,18 @@ export class CdkStack extends Stack {
     })
 
     const lambdaFnStart = new lambda.Function(this, "cdk-lambda-start-function", {
-        code: lambda.AssetCode.fromAsset("lambda"),
+        code: lambda.AssetCode.fromAsset("StartEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
-        handler: "StartEC2.handler",
+        handler: "index.handler",
         environment: {
             instanceId: ec2Instance.instanceId
         },
     });
 
     const lambdaFnStop = new lambda.Function(this, "cdk-lambda-stop-function", {
-        code: lambda.AssetCode.fromAsset("lambda"),
+        code: lambda.AssetCode.fromAsset("StopEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
-        handler: "StopEC2.handler",
+        handler: "index.handler",
         environment: {
             instanceId: ec2Instance.instanceId
         },
