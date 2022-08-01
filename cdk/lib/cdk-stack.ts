@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 import * as ec2 from 'aws-cdk-lib/aws-ec2'; 
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 
 export class CdkStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -37,7 +38,14 @@ export class CdkStack extends Stack {
         securityGroup: webserverSG
     })
 
-    
+    const lambdaFn = new lambda.Function(this, "cdk-lambda-start-function", {
+        code: lambda.AssetCode.fromAsset("lambda"),
+        runtime: lambda.Runtime.PYTHON_3_8,
+        handler: "StartEC2.handler",
+        environment: {
+            instanceId: ec2Instance.instanceId
+        },
+    });
 
   }
 }
