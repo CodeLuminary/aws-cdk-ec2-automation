@@ -12,62 +12,102 @@ export class CdkStack extends Stack {
     super(scope, id, props);
 
     // The code that defines your stack goes here
+
+    //Create a Virtual Private Cloud (VPC)
     const vpc = new ec2.Vpc(this, 'MyVpc', {
       natGateways: 0,
     });
 
+    //Create a security group
     const webserverSG = new ec2.SecurityGroup(this, 'webserver-sg', {
       vpc,
       allowAllOutbound: true,
     });
-
+    //Add ingress rule for allowing http traffic
     webserverSG.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(80),
       'allow HTTP traffic from anywhere',
     );
 
+    //Add ingress rule for allowing https traffic
     webserverSG.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(443),
       'allow HTTPS traffic from anywhere',
     );
 
+    //Create an instance of Elastic Compute Cloud (EC2)
     const ec2Instance = new ec2.Instance(this,'ec2Instance', {
         instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
         machineImage: new ec2.AmazonLinuxImage(),
-        vpc: vpc,
+        vpc: vpc, //EC2 instance placed in a VPC
         securityGroup: webserverSG
     });
 
-    const role = new iam.Role(this, "cdk-ec2-lambdarole", {
+    const StartRole = new iam.Role(this, "cdk-ec2-lambda-start-role", {
             assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
         });
-        role.addToPolicy(
-            new iam.PolicyStatement({
-                effect: iam.Effect.ALLOW,
-                actions: [
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                ],
-                resources: ["*"],
-            })
-        );
+    StartRole.addToPolicy(
+        new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+            ],
+            resources: ["arn:aws:logs:*:*:*"],
+        })
+    );
+    StartRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "ec2:Start*"
+        ],
+        resources: ["*"]
+      })
+    )
 
     const lambdaFnStart = new lambda.Function(this, "cdk-lambda-start-function", {
         code: lambda.AssetCode.fromAsset("StartEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
         handler: "index.handler",
+        role: StartRole,
         environment: {
             instanceId: ec2Instance.instanceId
         },
     });
 
+    const StopRole = new iam.Role(this, "cdk-ec2-lambda-stop-role", {
+        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+    StopRole.addToPolicy(
+        new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+            ],
+            resources: ["arn:aws:logs:*:*:*"],
+        })
+    );
+    StopRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "ec2:Stop*"
+        ],
+        resources: ["*"]
+      })
+    )
+
     const lambdaFnStop = new lambda.Function(this, "cdk-lambda-stop-function", {
         code: lambda.AssetCode.fromAsset("StopEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
         handler: "index.handler",
+        role: StopRole,
         environment: {
             instanceId: ec2Instance.instanceId
         },
