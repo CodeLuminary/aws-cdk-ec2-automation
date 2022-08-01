@@ -1,6 +1,6 @@
 # AWS CDK EC2 Automation
 
-This project is about automating AWS Elastic compute cloud (EC2) instances by starting them in the morning and terminating them in the evening. The provisioning of the AWS resources are done using AWS Cloud development kit(CDK).
+This project is about automating AWS Elastic compute cloud (EC2) instances by starting them in the morning (6.00 AM UTC) and terminating them in the evening (11.00 PM UTC). The provisioning of the AWS resources are done using AWS Cloud development kit(CDK).
 
 
 ## Technology Stack & Tools
