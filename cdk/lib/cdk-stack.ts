@@ -4,6 +4,8 @@ import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2'; 
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import {Rule, Schedule} from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets'
 
 export class CdkStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -38,7 +40,7 @@ export class CdkStack extends Stack {
         securityGroup: webserverSG
     })
 
-    const lambdaFn = new lambda.Function(this, "cdk-lambda-start-function", {
+    const lambdaFnStart = new lambda.Function(this, "cdk-lambda-start-function", {
         code: lambda.AssetCode.fromAsset("lambda"),
         runtime: lambda.Runtime.PYTHON_3_8,
         handler: "StartEC2.handler",
@@ -46,6 +48,23 @@ export class CdkStack extends Stack {
             instanceId: ec2Instance.instanceId
         },
     });
+
+    const lambdaFnStop = new lambda.Function(this, "cdk-lambda-stop-function", {
+        code: lambda.AssetCode.fromAsset("lambda"),
+        runtime: lambda.Runtime.PYTHON_3_8,
+        handler: "StopEC2.handler",
+        environment: {
+            instanceId: ec2Instance.instanceId
+        },
+    });
+
+    const rule = new Rule (this, "ScheduleRule", {
+      schedule: Schedule.cron({
+        minute: '0', hour: '6'
+      })
+    })
+
+    rule.addTarget(new targets.LambdaFunction(lambdaFnStart))
 
   }
 }
