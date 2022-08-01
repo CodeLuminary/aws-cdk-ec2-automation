@@ -15,6 +15,21 @@ This project is about automating AWS Elastic compute cloud (EC2) instances by st
 - Install [NodeJS](https://nodejs.org/en/) - CDK is build on top of node thus you will need to install nodejs before installing CDK.
 - Install and configure [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) using your generated AWS credentials
 
+## AWS SERVICES NEEDED
+
+- AWS EC2
+- AWS EVENT BRIDGE
+- AWS LAMBDA FUNCTION
+- AWS IAM ROLE
+
+## ARCHITECTURE
+
+The event bridge is used to set a cron job which will in turn call lambda function that will in turn start/stop the ec2 instance. 
+
+EVENT BRIDGE :arrow_right: LAMBDA FUNCTION :arrow_right: EC2
+
+NB: Appropriate IAM role need to be assigned to Lambda to be able to start/stop EC2
+
 ## Setting Up
 ### 1. Fork/Clone/Download the Repository 
 ### 2. Open project folder in a terminal
