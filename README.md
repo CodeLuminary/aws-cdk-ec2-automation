@@ -41,10 +41,10 @@ $ cdk synth
 $ cdk deploy
 ```
 
- :star: Violaa :) Your infrastructure have been provision using infrastructure as code.
+ :dancers: :dancers: Violaa :) Your infrastructure have been provision using infrastructure as code.
 
 ## 🎩 Author
 
 - IJONI VICTOR 😁😁😁
 
-> Please don't forget to star the project 😁😁 . Thanks
+> Please :pray: don't forget to star :star: the project 😁😁 . Thanks :+1:
