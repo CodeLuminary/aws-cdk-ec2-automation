@@ -38,7 +38,22 @@ export class CdkStack extends Stack {
         machineImage: new ec2.AmazonLinuxImage(),
         vpc: vpc,
         securityGroup: webserverSG
-    })
+    });
+
+    const role = new iam.Role(this, "cdk-ec2-lambdarole", {
+            assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+        });
+        role.addToPolicy(
+            new iam.PolicyStatement({
+                effect: iam.Effect.ALLOW,
+                actions: [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                ],
+                resources: ["*"],
+            })
+        );
 
     const lambdaFnStart = new lambda.Function(this, "cdk-lambda-start-function", {
         code: lambda.AssetCode.fromAsset("StartEC2"),
