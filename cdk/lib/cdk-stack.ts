@@ -115,7 +115,7 @@ export class CdkStack extends Stack {
 
     const rule = new Rule (this, "ScheduleRule", {
       schedule: Schedule.cron({
-        minute: '0', hour: '6'
+        minute: '0', hour: '23'
       })
     })
 
