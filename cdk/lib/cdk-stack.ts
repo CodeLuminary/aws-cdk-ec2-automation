@@ -45,6 +45,7 @@ export class CdkStack extends Stack {
         securityGroup: webserverSG
     });
 
+    //Create IAM role for lambda
     const StartRole = new iam.Role(this, "cdk-ec2-lambda-start-role", {
             assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
         });
@@ -68,7 +69,7 @@ export class CdkStack extends Stack {
         resources: ["*"]
       })
     )
-
+    //Create a lambda function
     const lambdaFnStart = new lambda.Function(this, "cdk-lambda-start-function", {
         code: lambda.AssetCode.fromAsset("StartEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
@@ -78,7 +79,7 @@ export class CdkStack extends Stack {
             instanceId: ec2Instance.instanceId
         },
     });
-
+    //Create IAM role for lambda
     const StopRole = new iam.Role(this, "cdk-ec2-lambda-stop-role", {
         assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
     });
@@ -102,7 +103,7 @@ export class CdkStack extends Stack {
         resources: ["*"]
       })
     )
-
+    //Create a lambda function
     const lambdaFnStop = new lambda.Function(this, "cdk-lambda-stop-function", {
         code: lambda.AssetCode.fromAsset("StopEC2"),
         runtime: lambda.Runtime.PYTHON_3_8,
@@ -112,14 +113,22 @@ export class CdkStack extends Stack {
             instanceId: ec2Instance.instanceId
         },
     });
+    //Create an Event Bridge
+    const StartRule = new Rule (this, "ScheduleStartRule", {
+      schedule: Schedule.cron({
+        minute: '0', hour: '6'
+      })
+    })
 
-    const rule = new Rule (this, "ScheduleRule", {
+    StartRule.addTarget(new targets.LambdaFunction(lambdaFnStart))
+
+    //Create an Event Bridge
+    const StopRule = new Rule (this, "ScheduleStopRule", {
       schedule: Schedule.cron({
         minute: '0', hour: '23'
       })
     })
 
-    rule.addTarget(new targets.LambdaFunction(lambdaFnStart))
-
+    StopRule.addTarget(new targets.LambdaFunction(lambdaFnStop))
   }
 }
